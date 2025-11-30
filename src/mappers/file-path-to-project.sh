@@ -97,7 +97,7 @@ if [[ -n "$basename_seg" ]]; then
     done
 fi
 
-if [[ $project == "unknown" ]]; then
+if [[ "$project" == "unknown" ]]; then
     depth_segment=$(basename "$(dirname "$resolved")")
     if [[ -n "$depth_segment" && "$depth_segment" != "." ]]; then
         set_candidate "$depth_segment" "0.4" "path:parent=$depth_segment"

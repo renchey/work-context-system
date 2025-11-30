@@ -30,10 +30,12 @@ done
 read_cmdline() {
     local pid=$1
     if [[ -r "/proc/$pid/cmdline" ]]; then
-        tr '\0' ' ' <"/proc/$pid/cmdline" | sed 's/ *$//'
+        local cmdline
+        IFS= read -r -d '' cmdline <"/proc/$pid/cmdline" 2>/dev/null || true
+        printf '%s' "${cmdline//$'\0'/ }"
         return 0
     fi
-    echo ""
+    printf ""
     return 0
 }
 
@@ -164,30 +166,40 @@ while read -r pid cpu rss comm; do
 done < <(ps -eo pid=,%cpu=,rss=,comm=)
 
 categories_json=$(build_categories_json)
+timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Build intensive JSON directly in bash (avoid extra jq call)
 if [[ -n "$intensive_buffer" ]]; then
-    intensive_json=$(printf '%s' "$intensive_buffer" | jq -Rs 'split("\n") | map(select(length>0) | split("\t")) | map({
-        pid: (.[0] | tonumber?),
-        process_name: .[1],
-        category: .[2],
-        cpu: (.[3] | tonumber?),
-        mem_mb: (.[4] | tonumber?),
-        cmdline: .[5]
-    })')
+    intensive_json='['
+    first_intensive=true
+    while IFS=$'\t' read -r pid comm category cpu mem_mb cmdline; do
+        [[ -n "$pid" ]] || continue
+        if [ "$first_intensive" = true ]; then
+            first_intensive=false
+        else
+            intensive_json+=','
+        fi
+        # Escape for JSON
+        cmdline_escaped="${cmdline//\\/\\\\}"
+        cmdline_escaped="${cmdline_escaped//\"/\\\"}"
+        cmdline_escaped="${cmdline_escaped//$'\n'/\\n}"
+        cmdline_escaped="${cmdline_escaped//$'\r'/\\r}"
+        intensive_json+="{\"pid\":$pid,\"process_name\":\"$comm\",\"category\":\"$category\",\"cpu\":$cpu,\"mem_mb\":$mem_mb,\"cmdline\":\"$cmdline_escaped\"}"
+    done <<< "$intensive_buffer"
+    intensive_json+=']'
 else
     intensive_json='[]'
 fi
 
-timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-
 jq -n \
-    --arg processes "$process_total" \
-    --arg intensive "$intensive_total" \
+    --argjson processes "$process_total" \
+    --argjson intensive "$intensive_total" \
     --arg timestamp "$timestamp" \
     --argjson categories "$categories_json" \
     --argjson intensive_details "$intensive_json" \
     '{
-        processes: ($processes | tonumber),
-        intensive_process_count: ($intensive | tonumber),
+        processes: $processes,
+        intensive_process_count: $intensive,
         categories: $categories,
         intensive_processes: $intensive_details,
         timestamp: $timestamp

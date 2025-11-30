@@ -57,7 +57,7 @@ contains_any() {
     shift
     for needle in "$@"; do
         [[ -z "$needle" ]] && continue
-        if [[ $haystack == *"$needle"* ]]; then
+        if [[ "$haystack" == *"$needle"* ]]; then
             echo "$needle"
             return 0
         fi
@@ -97,13 +97,13 @@ if [[ -z "$lower_process" && -z "$lower_cmd" && -z "$lower_title" ]]; then
     set_candidate "unknown" "0" "no_signals"
 fi
 
-if [[ $work_type == "unknown" ]]; then
+if [[ "$work_type" == "unknown" ]]; then
     if match=$(contains_any "$lower_process" firefox chrome chromium brave safari arc); then
         set_candidate "research" "0.55" "browser=$match"
     fi
 fi
 
-if [[ $work_type == "unknown" && $lower_title == *"docs.google.com"* ]]; then
+if [[ "$work_type" == "unknown" && "$lower_title" == *"docs.google.com"* ]]; then
     set_candidate "documentation" "0.5" "title=docs"
 fi
 

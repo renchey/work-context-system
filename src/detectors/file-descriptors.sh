@@ -156,15 +156,13 @@ if ! collect_from_lsof; then
 fi
 
 to_json_array() {
-    local map_name=$1
-    eval "local -A temp_ref=\"(\${$map_name[@]})\""
-    local keys
-    keys=$(eval "echo \${!$map_name[@]}")
-    if [[ -z "$keys" ]]; then
+    local -n array_ref=$1
+    local keys=("${!array_ref[@]}")
+    if [[ ${#keys[@]} -eq 0 ]]; then
         echo '[]'
         return
     fi
-    eval "printf '%s\\0' \${!$map_name[@]}" | jq -Rs 'split("\u0000") | map(select(length>0)) | sort | unique'
+    printf '%s\0' "${keys[@]}" | jq -Rs 'split("\u0000") | map(select(length>0)) | sort | unique'
 }
 
 repos_json=$(to_json_array git_repos_map)
