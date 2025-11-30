@@ -5,6 +5,7 @@ set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DAEMON_SCRIPT="$PROJECT_DIR/src/daemon/daemon-control.sh"
+API_SCRIPT="$PROJECT_DIR/src/server/api-control.sh"
 OUTPUT_DIR="$PROJECT_DIR/src/output"
 ANALYTICS_DIR="$PROJECT_DIR/src/analytics"
 
@@ -17,6 +18,7 @@ USAGE:
 
 COMMANDS:
     daemon [start|stop|restart|status|logs]  - Manage background tracking daemon
+    api [start|stop|restart|status|logs]     - Manage REST API server
     status, now                                - Show real-time work context
     timeline [today|week]                      - View context switch timeline
     note "text"                                - Add annotation to current work
@@ -28,6 +30,7 @@ COMMANDS:
 
 EXAMPLES:
     work daemon start                          # Start tracking
+    work api start                             # Start web dashboard
     work status                                # Show current work
     work timeline today                        # Today's context switches
     work note "Debugging latency issue"        # Add note
@@ -39,6 +42,12 @@ DAEMON MANAGEMENT:
     work daemon restart     - Restart daemon
     work daemon status      - Show daemon status + recent logs
     work daemon logs        - Tail daemon log in real-time
+
+API SERVER:
+    work api start          - Start REST API server (port 3042)
+    work api stop           - Stop API server
+    work api status         - Check API server status
+    work api logs           - View API server logs
 
 CURRENT CONTEXT:
     work status             - Show: project, worktype, confidence, load
@@ -67,6 +76,10 @@ case "${1:-help}" in
     daemon)
         shift
         "$DAEMON_SCRIPT" "${@:-status}"
+        ;;
+    api)
+        shift
+        "$API_SCRIPT" "${@:-status}"
         ;;
     status|now)
         "$OUTPUT_DIR/work-status-now.sh"
