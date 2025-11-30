@@ -6,6 +6,7 @@ set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DAEMON_SCRIPT="$PROJECT_DIR/src/daemon/daemon-control.sh"
 OUTPUT_DIR="$PROJECT_DIR/src/output"
+ANALYTICS_DIR="$PROJECT_DIR/src/analytics"
 
 show_help() {
     cat << 'HELP'
@@ -20,6 +21,8 @@ COMMANDS:
     timeline [today|week]                      - View context switch timeline
     note "text"                                - Add annotation to current work
     analyze [project|time|patterns]            - Analyze work data
+    analytics [metrics|burndown]               - Advanced productivity analytics
+    dashboard                                  - Show comprehensive analytics dashboard
     init                                       - Initialize system
     help, --help                               - Show this help
 
@@ -45,6 +48,9 @@ ANALYTICS:
     work timeline today     - Context switches for today
     work timeline week      - Context switches for past 7 days
     work analyze            - Summary statistics
+    work analytics metrics  - Productivity metrics (switch rate, focus time, fragmentation)
+    work analytics burndown - Sprint/weekly progress tracking
+    work dashboard          - Comprehensive analytics dashboard with charts
     work note "text"        - Add manual annotation
 
 SYSTEM:
@@ -108,6 +114,30 @@ case "${1:-help}" in
         # Top projects
         echo "Projects worked on:"
         grep '"context_change"' "$SESSION_FILE" | jq -r '.data.project' | sort | uniq -c | sort -rn | head -5
+        ;;
+    analytics)
+        subcommand="${2:-}"
+        case "$subcommand" in
+            metrics)
+                shift 2
+                "$ANALYTICS_DIR/productivity-metrics.sh" "${1:-today}"
+                ;;
+            burndown)
+                shift 2
+                "$ANALYTICS_DIR/burndown.sh" "${1:-week}"
+                ;;
+            *)
+                echo "Usage: work analytics [metrics|burndown] [time_range]"
+                echo ""
+                echo "Available commands:"
+                echo "  metrics [today|yesterday|week]  - Calculate productivity metrics"
+                echo "  burndown [week|sprint|month]    - Show progress burndown chart"
+                exit 1
+                ;;
+        esac
+        ;;
+    dashboard)
+        "$OUTPUT_DIR/analytics-dashboard.sh"
         ;;
     init)
         mkdir -p "${HOME}/.claude-work-data"

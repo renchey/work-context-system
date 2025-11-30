@@ -1,0 +1,19 @@
+[Unit]
+Description=Work Context System REST API
+After=network.target
+
+[Service]
+Type=simple
+User=%u
+WorkingDirectory=%h/projects/work-context-system
+ExecStart=/usr/bin/env node %h/projects/work-context-system/src/server/api.js
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+Environment="NODE_ENV=production"
+Environment="PORT=3042"
+
+[Install]
+WantedBy=default.target
