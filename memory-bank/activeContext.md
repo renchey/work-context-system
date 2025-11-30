@@ -1,16 +1,17 @@
 # Active Context
 
-## Current Phase: Architecture & Design
+## Current Phase: Phase 1 Complete → Phase 2 In Progress
 
-We're transitioning from discovery (broken passive system) to implementation (process-manager-based solution).
+Core detectors, inference, and validation suite are live. Phase 2 mapping heuristics now being implemented. See `memory-bank/sessions/2025-11-30-phase1-review.md` for Phase 2 readiness assessment.
 
 ## Recent Accomplishments
 
-- **Architecture Decision**: Chose process-manager approach over app-specific integrations
-- **Decision Log**: Documented rationale in ARCHITECTURE.md
+- **Detector Stack**: Active window, process tree, and file descriptor detectors emit spec-compliant JSON
+- **Inference Engine**: Aggregates detector output into project/work-type + confidence
+- **Test Harness**: `tests/test-detection.sh` validates JSON + performance (<2s / detector)
+- **Architecture Decision**: Process-manager approach over app-specific integrations
 - **Project Structure**: Aligned with org-governance standards
-- **Memory Bank**: Created standard memory bank structure
-- **Specification**: Created project.spec.md with full handoff notes
+- **Memory Bank & Spec**: Established for future agents
 
 ## Active Work
 
@@ -19,7 +20,9 @@ We're transitioning from discovery (broken passive system) to implementation (pr
 - [x] Document architecture decision
 - [x] Create project structure aligned to org-standards
 - [x] Set up memory bank
-- [ ] Implement Phase 1 (Core Detection) - **Handed off to GitHub Copilot**
+- [x] Implement Phase 1 (Core Detection) - **Completed 2025-11-30**
+- [ ] Plan Phase 2 mapping + heuristics expansion
+- [ ] Define Phase 3 daemon integration milestones
 
 ## Current Blockers
 
@@ -27,11 +30,9 @@ We're transitioning from discovery (broken passive system) to implementation (pr
 
 ## Next Steps
 
-1. **GitHub Copilot EOM Sprint** - Implement Phase 1 (detectors)
-2. **Phase 1 Completion** - All core detectors functional and tested
-3. **Phase 2** - Project mapping and inference layer
-4. **Phase 3** - Daemon integration
-5. **Phase 4** - Output and analytics commands
+1. **Phase 2 Kickoff** - URL/file/project mapping heuristics + confidence tuning
+2. **Phase 3 Prep** - Plan daemon orchestration + polling cadence validation
+3. **Phase 4 Lookahead** - Define CLI output contracts (`work-status-now`, etc.)
 
 ## Decision Points Made
 
@@ -76,13 +77,18 @@ We're transitioning from discovery (broken passive system) to implementation (pr
 - Ready to hand off to implementation team
 
 **GitHub Copilot** (EOM - Implementation):
-- Will implement Phase 1 (core detectors)
-- Starting with active window detection
-- 60% quota available today
-- Deadline: Implementation complete this sprint
+- Delivered all Phase 1 detectors + inference + tests (runtime guard at 2s)
+- Documented behavior updates in README/START-HERE/TASK-PHASE-1
+- Ready to support Phase 2 planning + handoff artifacts
 
 ---
 
 **Last Updated**: 2025-11-30
-**Next Review**: After Phase 1 implementation
+**Next Review**: Phase 2 kickoff
 **Owner**: Work Context System Team
+
+## Update — 2025-11-30 (Append-Only Note)
+
+- Memory bank entries now follow an append-only policy; status changes are captured by adding new sections (see `memory-bank/progress.md` snapshot dated 2025-11-30).
+- Current state: Phase 1 deliverables complete; outstanding items focus on Phase 2 mapping heuristics, Phase 3 daemon integration, and Phase 4 output commands.
+- Completed vs. Still To Do lists live at the end of `memory-bank/progress.md` for continuity.
