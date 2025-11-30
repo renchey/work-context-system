@@ -1,5 +1,8 @@
 # Work Context System
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/renchey/work-context-system?quickstart=1)
+[![Test](https://github.com/renchey/work-context-system/actions/workflows/test.yml/badge.svg)](https://github.com/renchey/work-context-system/actions/workflows/test.yml)
+
 **Zero-friction work context tracking for chaotic developers.**
 
 Automatically detects what you're working on across all tools—terminal, IDE, browser, email—without any manual logging or activation.
@@ -95,6 +98,18 @@ work-analyze
 - **Integration point** (Slack status, calendar blocking, etc)
 
 ## Development
+
+### Quick Setup with Codespaces
+
+Click the badge above to launch a fully configured development environment in GitHub Codespaces with Node.js 20, bash, jq, and all required tools pre-installed.
+
+### Local Development
+
+Requirements:
+- Bash 4.0+
+- jq
+- xdotool, wmctrl (for window detection)
+- Node.js 20+ (optional, for web UI)
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for implementation plan.
 

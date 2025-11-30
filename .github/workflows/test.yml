@@ -1,0 +1,43 @@
+name: Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq xvfb x11-utils
+        
+    - name: Run detection tests
+      run: |
+        # Run tests in headless X environment for window detection
+        export DISPLAY=:99
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        sleep 2
+        ./tests/test-detection.sh
+        
+    - name: Run integration tests
+      run: ./tests/integration-tests.sh
+      
+    - name: Validate JSON schemas
+      run: |
+        for detector in src/detectors/*.sh; do
+          echo "Testing $detector..."
+          output=$($detector)
+          echo "$output" | jq empty || {
+            echo "ERROR: Invalid JSON from $detector"
+            exit 1
+          }
+        done
