@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Context Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .card-subtext {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-afk {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .chart {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .timeline {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .timeline-item {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-time {
+            color: #667eea;
+            font-weight: 600;
+            margin-right: 15px;
+            min-width: 60px;
+        }
+
+        .timeline-event {
+            color: #333;
+            flex: 1;
+        }
+
+        .timeline-emoji {
+            margin-right: 8px;
+        }
+
+        .load-bar {
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .load-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .confidence {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .refresh-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .refresh-btn:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Work Context Dashboard</h1>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button class="refresh-btn" onclick="loadData()">🔄 Refresh Data</button>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>Current Project</h2>
+                <div class="card-value" id="project">—</div>
+                <div class="card-subtext">Active context</div>
+            </div>
+
+            <div class="card">
+                <h2>Work Type</h2>
+                <div class="card-value" id="worktype" style="font-size: 24px;">—</div>
+                <div id="confidence" class="confidence">—</div>
+            </div>
+
+            <div class="card">
+                <h2>Status</h2>
+                <div id="status-badge" class="status-badge status-active">🟢 Active</div>
+                <div class="card-subtext" id="status-time" style="margin-top: 10px;">—</div>
+            </div>
+
+            <div class="card">
+                <h2>Cognitive Load</h2>
+                <div class="card-value" id="processes">0</div>
+                <div class="load-bar">
+                    <div class="load-fill" id="load-fill" style="width: 0%;"></div>
+                </div>
+                <div class="card-subtext">Background processes</div>
+            </div>
+
+            <div class="card">
+                <h2>Context Switches</h2>
+                <div class="card-value" id="switches">0</div>
+                <div class="card-subtext">Today</div>
+            </div>
+
+            <div class="card">
+                <h2>AFK Time</h2>
+                <div class="card-value" id="afk-time">0m</div>
+                <div class="card-subtext">Total today</div>
+            </div>
+        </div>
+
+        <div class="timeline">
+            <h2 style="margin-bottom: 15px; color: #333;">📅 Timeline (Today)</h2>
+            <div id="timeline-content">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        // Simple JSON parser for local data
+        function loadData() {
+            try {
+                // In production, this would fetch from an API
+                // For now, display message to user
+                const msg = document.getElementById('error');
+                msg.textContent = '📝 Dashboard is demo mode. To enable live data: Install Node.js server or use work analyze command';
+                msg.style.display = 'block';
+
+                // Simulate some data
+                document.getElementById('project').textContent = 'stock-v3';
+                document.getElementById('worktype').textContent = 'development';
+                document.getElementById('confidence').textContent = '87% confident';
+                document.getElementById('processes').textContent = '3';
+                document.getElementById('switches').textContent = '8';
+                document.getElementById('afk-time').textContent = '22m';
+                
+                // Update load bar
+                document.getElementById('load-fill').style.width = '33%';
+                
+                // Sample timeline
+                const timeline = `
+                    <div class="timeline-item">
+                        <div class="timeline-time">09:15</div>
+                        <div class="timeline-event"><span class="timeline-emoji">📂</span>Context: stock-v3</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">09:45</div>
+                        <div class="timeline-event"><span class="timeline-emoji">📂</span>Context: mallow-ai</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">10:30</div>
+                        <div class="timeline-event"><span class="timeline-emoji">💤</span>AFK detected (22 min)</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">10:52</div>
+                        <div class="timeline-event"><span class="timeline-emoji">🟢</span>Back active</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">11:00</div>
+                        <div class="timeline-event"><span class="timeline-emoji">📂</span>Context: stock-v3</div>
+                    </div>
+                `;
+                
+                document.getElementById('timeline-content').innerHTML = timeline;
+            } catch (e) {
+                console.error('Error loading data:', e);
+            }
+        }
+
+        // Load data on page load
+        window.addEventListener('load', loadData);
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>
