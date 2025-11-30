@@ -1,0 +1,26 @@
+[Unit]
+Description=Work Context Tracking Daemon
+Documentation=file:///home/renchey/projects/work-context-system/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+User=renchey
+WorkingDirectory=/home/renchey/projects/work-context-system
+ExecStart=/home/renchey/projects/work-context-system/src/daemon/daemon-control.sh start
+ExecStop=/home/renchey/projects/work-context-system/src/daemon/daemon-control.sh stop
+ExecReload=/home/renchey/projects/work-context-system/src/daemon/daemon-control.sh restart
+Restart=on-failure
+RestartSec=10
+
+# Resource limits
+MemoryLimit=100M
+CPUQuota=5%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

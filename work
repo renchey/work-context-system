@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+# work: Main CLI for Work Context System
+
+set -euo pipefail
+
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DAEMON_SCRIPT="$PROJECT_DIR/src/daemon/daemon-control.sh"
+OUTPUT_DIR="$PROJECT_DIR/src/output"
+
+show_help() {
+    cat << 'HELP'
+Work Context System - Passive work tracking and analytics
+
+USAGE:
+    work [COMMAND] [OPTIONS]
+
+COMMANDS:
+    daemon [start|stop|restart|status|logs]  - Manage background tracking daemon
+    status, now                                - Show real-time work context
+    timeline [today|week]                      - View context switch timeline
+    note "text"                                - Add annotation to current work
+    analyze [project|time|patterns]            - Analyze work data
+    init                                       - Initialize system
+    help, --help                               - Show this help
+
+EXAMPLES:
+    work daemon start                          # Start tracking
+    work status                                # Show current work
+    work timeline today                        # Today's context switches
+    work note "Debugging latency issue"        # Add note
+    work daemon logs                           # Watch daemon logs
+
+DAEMON MANAGEMENT:
+    work daemon start       - Start background daemon (30s polling)
+    work daemon stop        - Stop daemon gracefully
+    work daemon restart     - Restart daemon
+    work daemon status      - Show daemon status + recent logs
+    work daemon logs        - Tail daemon log in real-time
+
+CURRENT CONTEXT:
+    work status             - Show: project, worktype, confidence, load
+    work now                - Alias for 'work status'
+
+ANALYTICS:
+    work timeline today     - Context switches for today
+    work timeline week      - Context switches for past 7 days
+    work analyze            - Summary statistics
+    work note "text"        - Add manual annotation
+
+SYSTEM:
+    work init               - Initialize work tracking system
+    work config             - Show configuration
+    work reset              - Reset all data (careful!)
+
+HELP
+
+}
+
+# Route commands
+case "${1:-help}" in
+    daemon)
+        shift
+        "$DAEMON_SCRIPT" "${@:-status}"
+        ;;
+    status|now)
+        "$OUTPUT_DIR/work-status-now.sh"
+        ;;
+    timeline)
+        "$OUTPUT_DIR/work-timeline.sh" "${2:-today}"
+        ;;
+    note)
+        shift
+        text="${1:-}"
+        if [ -z "$text" ]; then
+            echo "Usage: work note \"Your annotation here\""
+            exit 1
+        fi
+        
+        # Log note to sessions.jsonl
+        SESSION_FILE="${HOME}/.claude-work-data/sessions.jsonl"
+        timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        jq -n \
+            --arg type "work_note" \
+            --arg timestamp "$timestamp" \
+            --arg note "$text" \
+            '{type: $type, timestamp: $timestamp, data: {note: $note}}' >> "$SESSION_FILE"
+        echo "✓ Note added"
+        ;;
+    analyze)
+        echo "📊 Work Analysis"
+        echo ""
+        SESSION_FILE="${HOME}/.claude-work-data/sessions.jsonl"
+        
+        if [ ! -f "$SESSION_FILE" ]; then
+            echo "No data yet. Start daemon with: work daemon start"
+            exit 1
+        fi
+        
+        total_events=$(wc -l < "$SESSION_FILE")
+        context_changes=$(grep '"context_change"' "$SESSION_FILE" | wc -l)
+        afk_periods=$(grep '"afk_detected"' "$SESSION_FILE" | wc -l)
+        
+        echo "Total events: $total_events"
+        echo "Context switches: $context_changes"
+        echo "AFK periods: $afk_periods"
+        echo ""
+        
+        # Top projects
+        echo "Projects worked on:"
+        grep '"context_change"' "$SESSION_FILE" | jq -r '.data.project' | sort | uniq -c | sort -rn | head -5
+        ;;
+    init)
+        mkdir -p "${HOME}/.claude-work-data"
+        echo "✓ System initialized"
+        echo ""
+        echo "Next steps:"
+        echo "  1. work daemon start    # Start tracking"
+        echo "  2. work status          # Check current context"
+        echo "  3. work timeline today  # View switches"
+        ;;
+    config)
+        echo "Work Context System Configuration"
+        echo ""
+        echo "Data directory: ${HOME}/.claude-work-data/"
+        echo "Session log: ${HOME}/.claude-work-data/sessions.jsonl"
+        echo "State file: ${HOME}/.claude-work-data/context-state.json"
+        echo "Daemon log: ${HOME}/.claude-work-data/daemon.log"
+        echo ""
+        echo "Poll interval: 30 seconds"
+        echo "AFK threshold: 15 minutes"
+        ;;
+    reset)
+        read -p "⚠️  Delete all session data? (yes/no): " confirm
+        if [ "$confirm" = "yes" ]; then
+            rm -f "${HOME}/.claude-work-data/sessions.jsonl" \
+                  "${HOME}/.claude-work-data/context-state.json"
+            echo "✓ Data reset"
+        else
+            echo "Cancelled"
+        fi
+        ;;
+    help|--help|-h)
+        show_help
+        ;;
+    *)
+        echo "Unknown command: $1"
+        echo ""
+        show_help
+        exit 1
+        ;;
+esac
