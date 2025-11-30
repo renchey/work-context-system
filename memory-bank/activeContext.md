@@ -1,17 +1,17 @@
 # Active Context
 
-## Current Phase: Phase 1 Complete → Phase 2 In Progress
+## Current Phase: Phase 2 Complete → Preparing Phase 3
 
-Core detectors, inference, and validation suite are live. Phase 2 mapping heuristics now being implemented. See `memory-bank/sessions/2025-11-30-phase1-review.md` for Phase 2 readiness assessment.
+Core detectors, mappers, inference confidence scoring, and validation suite are live. Focus shifts to daemon integration + output surfaces. See `memory-bank/sessions/2025-11-30.md` for the latest session wrap-up.
 
 ## Recent Accomplishments
 
+- **Mapping Layer**: URL/file/process mappers (`src/mappers/*.sh`) feed inference with scored project/work-type candidates
+- **Inference Engine**: Aggregates detector + mapper signals with improved confidence scoring + signal trace
+- **Test Harness**: `tests/test-detection.sh` validates detectors + mappers, JSON shape, and performance (<2s / detector)
 - **Detector Stack**: Active window, process tree, and file descriptor detectors emit spec-compliant JSON
-- **Inference Engine**: Aggregates detector output into project/work-type + confidence
-- **Test Harness**: `tests/test-detection.sh` validates JSON + performance (<2s / detector)
 - **Architecture Decision**: Process-manager approach over app-specific integrations
-- **Project Structure**: Aligned with org-governance standards
-- **Memory Bank & Spec**: Established for future agents
+- **Project Structure / Memory Bank**: Aligned with org governance and append-only policy
 
 ## Active Work
 
@@ -21,8 +21,9 @@ Core detectors, inference, and validation suite are live. Phase 2 mapping heuris
 - [x] Create project structure aligned to org-standards
 - [x] Set up memory bank
 - [x] Implement Phase 1 (Core Detection) - **Completed 2025-11-30**
-- [ ] Plan Phase 2 mapping + heuristics expansion
-- [ ] Define Phase 3 daemon integration milestones
+- [x] Implement Phase 2 (Mapping + Scoring) - **Completed 2025-11-30**
+- [ ] Implement Phase 3 (Daemon integration + sessions logging)
+- [ ] Define Phase 4 output/analytics milestones + dashboard/notification scope
 
 ## Current Blockers
 
@@ -30,9 +31,9 @@ Core detectors, inference, and validation suite are live. Phase 2 mapping heuris
 
 ## Next Steps
 
-1. **Phase 2 Kickoff** - URL/file/project mapping heuristics + confidence tuning
-2. **Phase 3 Prep** - Plan daemon orchestration + polling cadence validation
-3. **Phase 4 Lookahead** - Define CLI output contracts (`work-status-now`, etc.)
+1. **Phase 3 Execution** - Build daemon loop, sessions logging, AFK/background load monitoring
+2. **Phase 4 Prep** - Define CLI output contracts (`work-status-now`, `work-timeline`, `work-analyze`) and dashboard/API interfaces
+3. **Notifications & Mobile** - Draft design for desktop alerts + phone companion/remote-control signals
 
 ## Decision Points Made
 
@@ -77,14 +78,20 @@ Core detectors, inference, and validation suite are live. Phase 2 mapping heuris
 - Ready to hand off to implementation team
 
 **GitHub Copilot** (EOM - Implementation):
-- Delivered all Phase 1 detectors + inference + tests (runtime guard at 2s)
-- Documented behavior updates in README/START-HERE/TASK-PHASE-1
-- Ready to support Phase 2 planning + handoff artifacts
+- Delivered Phase 1 detectors + Phase 2 mapping/inference upgrades (runtime guard at 2s)
+- Documented behavior updates in README/START-HERE/TASK-PHASE-1 and memory bank
+- Ready to support Phase 3 daemon build + dashboard/notification planning
 
 ---
 
+## Update — 2025-11-30 (Phase 2 Wrap)
+
+- Mapping heuristics + inference scoring completed; repo now emits consistent project/work-type w/ explicit signal logs.
+- Tests expanded to cover new mappers; watch `tests/test-detection.sh` output for performance regressions.
+- Next focus: daemon integration + dashboard/notification design spike.
+
 **Last Updated**: 2025-11-30
-**Next Review**: Phase 2 kickoff
+**Next Review**: After Phase 3 implementation plan lands
 **Owner**: Work Context System Team
 
 ## Update — 2025-11-30 (Append-Only Note)

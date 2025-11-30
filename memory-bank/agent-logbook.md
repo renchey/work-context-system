@@ -2,6 +2,22 @@
 
 ## For GitHub Copilot (EOM - Implementation)
 
+### Phase 1 Completion Notes (2025-11-30)
+
+- All four detectors (`active-window`, `process-tree`, `file-descriptors`, `inference`) emit stable JSON and handle missing-tool fallbacks.
+- `tests/test-detection.sh` exercises each detector, validates JSON via `jq`, and enforces the <2s runtime budget (current `process-tree` ~2.0s).
+- CPU overhead remains within the <5% target for the 30-second polling plan; memory footprint dominated by `lsof` when present.
+- Documentation refreshed (README, START-HERE, TASK-PHASE-1) so future agents immediately see completion status + expectations for Phase 2.
+- Remaining focus shifts to Phase 2 mapping heuristics and Phase 3 daemon integration (see "Questions for Next Phase" below).
+
+### Phase 2 Completion Notes (2025-11-30)
+
+- Added mapping utilities under `src/mappers/` (URL → project, file-path → project, process → work_type) plus shared heuristics (PROJECTS_ROOT aware).
+- `inference.sh` now aggregates detector + mapper signals, maintains per-project confidence scores, and surfaces a richer signal log.
+- `tests/test-detection.sh` invokes the new mappers to ensure deterministic JSON + regression protection alongside the existing runtime budget checks.
+- README + memory-bank docs updated to reflect Phase 2 completion; Copilot instructions now call out mapper workflow + testing requirements.
+- Next milestones focus on Phase 3 daemon loop (sessions logging, AFK/background load) and Phase 4 output/notification/dashboard surfaces.
+
 ### Handoff Summary
 
 You're taking over the **Work Context System** project for Phase 1 implementation.

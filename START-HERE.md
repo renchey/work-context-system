@@ -152,17 +152,17 @@ Task 1 ✓ Complete"
 
 ## Success Criteria Checklist
 
-**Mark off as you complete**:
+**Phase 1 status (2025-11-30)**:
 
-- [ ] Task 1: Active Window Detector (working + tested)
-- [ ] Task 2: Process Tree Analyzer (working + tested)
-- [ ] Task 3: File Descriptors Inspector (working + tested)
-- [ ] Task 4: Inference Engine (working + tested)
-- [ ] Task 5: Test Suite (all tests passing)
-- [ ] All JSON outputs validated
-- [ ] Performance verified (<5% CPU)
-- [ ] Memory bank updated with progress
-- [ ] Documentation updated in code
+- [x] Task 1: Active Window Detector (working + tested)
+- [x] Task 2: Process Tree Analyzer (working + tested)
+- [x] Task 3: File Descriptors Inspector (working + tested)
+- [x] Task 4: Inference Engine (working + tested)
+- [x] Task 5: Test Suite (all tests passing)
+- [x] All JSON outputs validated
+- [x] Performance verified (<5% CPU, <2s per detector via `tests/test-detection.sh`)
+- [x] Memory bank updated with progress (see `memory-bank/`)
+- [x] Documentation updated in code & docs
 
 ## When Phase 1 Is Done
 

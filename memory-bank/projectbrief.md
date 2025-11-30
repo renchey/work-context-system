@@ -141,6 +141,11 @@ Enable **zero-friction, automatic context tracking** for developers with chaotic
 | Privacy concerns with FD inspection | User resistance | Document what's inspected, make optional |
 | Shell integration limitations | Can't detect all context | Accept limitation, document scope |
 
+## Sessions
+
+- Session reports now live under `memory-bank/sessions/`. Each session file captures objectives, progress, metrics, and handover notes for smoother agent-to-agent transitions.
+- Latest entry: `memory-bank/sessions/2025-11-30.md` (Phase 1 completion + next-step guidance).
+
 ---
 
 **Created**: 2025-11-30

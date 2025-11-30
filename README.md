@@ -4,6 +4,17 @@
 
 Automatically detects what you're working on across all tools—terminal, IDE, browser, email—without any manual logging or activation.
 
+## Repository Signposts
+
+- **Getting Started**: `START-HERE.md` → orientation + workflow
+- **Current Tasks**: `TASK-PHASE-1.md` (Phase 1 reference) & run `./scripts/task-status.sh`
+- **Architecture**: `ARCHITECTURE.md` for the process-manager decision + phase plan
+- **Agents**: `AGENTS.md` (roles, responsibilities, handoff expectations)
+- **Contributors**: `CONTRIBUTORS.md` (append-only acknowledgements)
+- **Copilot Instructions**: `.github/copilot-instructions.md` (agent workflow + testing guardrails)
+- **Memory Bank**: `memory-bank/` (progress, active context, sessions log)
+- **Scripts**: `scripts/README.md` (task generator + status helper)
+
 ## Problem
 
 You jump between projects spontaneously. You have long background processes running. You get interrupted by urgent work. You take unexpected AFK breaks. And sometimes you spend 2 hours on something without realizing it.
@@ -46,7 +57,18 @@ $ work-status-now
 
 ## Project Status
 
-**Phase**: Architecture & Core Detection Design
+**Phase**: Phase 2 mapping heuristics complete — prepping for daemon integration.
+
+**Current Deliverables**
+- Active window, process tree, and file descriptor detectors emit JSON per spec
+- Phase 2 mappers (`src/mappers/*.sh`) resolve URL/file/process signals → project/work-type candidates
+- Inference engine stitches detector + mapper output into project/work-type with confidence scoring + signal trace
+- `tests/test-detection.sh` verifies detectors, mappers, JSON schemas, and enforces <2s detector runtime
+
+**Docs to Read Next**
+- `memory-bank/progress.md` → timeline + completed vs. pending work
+- `memory-bank/sessions/2025-11-30.md` → latest session summary + handover notes
+- `src/mappers/` → mapping heuristics for URLs, paths, processes feeding inference
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed design decisions.
 
