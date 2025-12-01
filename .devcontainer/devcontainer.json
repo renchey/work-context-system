@@ -1,23 +1,32 @@
 {
-  "name": "Work Context System",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "name": "TypeScript Dev Container",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm",
   "features": {
-    "ghcr.io/devcontainers/features/common-utils:2": {
-      "installZsh": false,
-      "upgradePackages": true
-    }
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "customizations": {
     "vscode": {
       "extensions": [
-        "timonwong.shellcheck",
-        "foxundermoon.shell-format"
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next",
+        "streetsidesoftware.code-spell-checker",
+        "GitHub.copilot",
+        "GitHub.copilot-chat"
       ],
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "typescript.enablePromptUseWorkspaceTsdk": true
       }
     }
   },
-  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y jq xdotool wmctrl x11-utils",
+  "forwardPorts": [3000, 5173, 8080],
+  "postCreateCommand": "npm install",
   "remoteUser": "node"
 }

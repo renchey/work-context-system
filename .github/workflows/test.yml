@@ -1,43 +1,37 @@
-name: Test
+name: Test Suite
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
-  workflow_dispatch:
+    branches: [main, develop]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y jq xvfb x11-utils
-        
-    - name: Run detection tests
-      run: |
-        # Run tests in headless X environment for window detection
-        export DISPLAY=:99
-        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        sleep 2
-        ./tests/test-detection.sh
-        
-    - name: Run integration tests
-      run: ./tests/integration-tests.sh
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
       
-    - name: Validate JSON schemas
-      run: |
-        for detector in src/detectors/*.sh; do
-          echo "Testing $detector..."
-          output=$($detector)
-          echo "$output" | jq empty || {
-            echo "ERROR: Invalid JSON from $detector"
-            exit 1
-          }
-        done
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run tests
+        run: npm test
+        env:
+          CI: true
+      
+      - name: Upload coverage reports
+        if: matrix.node-version == '20.x'
+        uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: false
