@@ -80,6 +80,7 @@
 ## Sprint Planning
 
 ### Sprint 1: Phase 1 Implementation (This Sprint)
+
 - **Owner**: GitHub Copilot (EOM)
 - **Quota**: 60% available
 - **Goals**:
@@ -91,10 +92,12 @@
 - **Success Criteria**: All 4 detectors tested and operational
 
 ### Sprint 2: Phase 2 & 3 (Next Sprint)
+
 - **Goals**: Project mapping + daemon integration
 - **Owner**: TBD
 
 ### Sprint 3: Phase 4 (Final Sprint)
+
 - **Goals**: Output commands + analytics
 - **Owner**: TBD
 
@@ -115,24 +118,28 @@
 
 ## Project Status Snapshot — 2025-11-30
 
-### Completed
+### Phase 1 Completed
+
 - Phase 1 detector stack (active window, process tree, file descriptors) with JSON schemas locked in.
 - Inference engine correlating detector output into project/work-type + confidence.
 - `tests/test-detection.sh` covering detector JSON validation + <2s runtime guard (process-tree currently ~2.0s real).
 
-### Still To Do
+### Phase 1 Still To Do
+
 - Phase 2 mapping heuristics (URL/file path → project, work-type refinements, confidence tuning).
 - Phase 3 daemon integration (30s poller, sessions.jsonl logging, AFK detection, background load tracking).
 - Phase 4 output commands (`work-status-now`, `work-timeline`, `work-analyze`) and analytics surfacing.
 
 ## Project Status Snapshot — 2025-11-30 (Phase 2 Wrap)
 
-### Completed
+### Phase 2 Completed
+
 - Phase 1 detector stack + inference foundation with runtime gating.
 - Phase 2 mapping layer (url/file/process mappers) + upgraded inference confidence scoring.
 - Test harness covers detectors + mappers (JSON validation + <2s budget).
 
-### Still To Do
+### Phase 2 Still To Do
+
 - Phase 3 daemon integration (context loop, sessions.jsonl logging, AFK/background load signals).
 - Phase 4 output & analytics commands + future dashboard/notification hooks.
 - Prep mobile/notification design artifacts for upcoming dashboard/phone companion initiative.

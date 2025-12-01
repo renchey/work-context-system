@@ -1,0 +1,26 @@
+[Unit]
+Description=Work Context System - Health Monitoring Service
+Documentation=file:///home/renchey/projects/work-context-system/monitoring.md
+After=work-context.service
+Wants=work-context.service
+
+[Service]
+Type=forking
+User=renchey
+WorkingDirectory=/home/renchey/projects/work-context-system
+ExecStart=/home/renchey/projects/work-context-system/src/monitoring/monitor-control.sh start
+ExecStop=/home/renchey/projects/work-context-system/src/monitoring/monitor-control.sh stop
+ExecReload=/home/renchey/projects/work-context-system/src/monitoring/monitor-control.sh restart
+Restart=on-failure
+RestartSec=10
+
+# Resource limits
+MemoryLimit=50M
+CPUQuota=2%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
