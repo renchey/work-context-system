@@ -1,37 +1,36 @@
-# Copilot Instructions
+## Copilot Instructions
 
-## Quick Context
-- Product: process-manager-based work context tracker (see ARCHITECTURE.md for rationale vs. app-specific integrations).
-- Code lives in Bash detectors under `src/detectors/`; inference consumes JSON emitted by active-window, process-tree, and file-descriptors scripts.
-- Memory bank (memory-bank/*.md) is append-only; add new sections/snapshots instead of editing history.
+### Quick Context
+- Process-manager-based work context tracker; architecture + rationale live in `ARCHITECTURE.md` and `project.spec.md`.
+- Core Bash detectors (`active-window.sh`, `process-tree.sh`, `file-descriptors.sh`) emit JSON that `src/detectors/inference.sh` merges with mapper hints.
+- Mapping heuristics in `src/mappers/` (URL/file-path/process) return `{project, confidence, signals}` blocks consumed by inference scoring.
+- Memory bank under `memory-bank/` is append-only history for progress, context, and session handoffs.
 
-## Daily Workflow
-1. Run `./scripts/task-status.sh` for current phase/tasks, then read `START-HERE.md` and the relevant `TASK-PHASE-*.md`.
-2. Implement or edit detectors under `src/detectors/` and mapping heuristics under `src/mappers/`, keeping JSON output stable (validate with `jq`).
-3. Execute `./tests/test-detection.sh` after detector/mapper changes; it checks schema + enforces <2s runtime (process-tree is tight at ~2s) and now includes mapper sanity tests.
-4. Update memory bank docs (progress, activeContext, agent-logbook, sessions) via appended sections summarizing accomplishments/blockers.
-5. When handing off, add a new `memory-bank/sessions/<YYYY-MM-DD>.md` report with context, progress, metrics, and next steps.
+### Daily Workflow
+1. Run `./scripts/task-status.sh`, then read `START-HERE.md` and the current `TASK-PHASE-*.md` to understand goals.
+2. Modify detectors or mappers while preserving JSON schemas; prefer building JSON via printf/heredocs and validate with `jq`.
+3. Execute `./tests/test-detection.sh` after each change; it runs detectors, inference, and mapper sanity checks while enforcing the <2s/process-tree budget.
+4. Append updates to `memory-bank/activeContext.md`, `progress.md`, `agent-logbook.md`, and start/extend a `memory-bank/sessions/<YYYY-MM-DD>.md` entry when handing off.
 
-## Coding Conventions
-- Stick to POSIX/Bash utilities already used (ps, jq, lsof, xdotool, wmctrl); guard optional dependencies with helper checks.
-- Buffer JSON fragments via printf/Here-strings instead of repeated `jq` processes; avoid per-process subshells (performance budget is strict).
-- Mapping scripts may read `$PROJECTS_ROOT` (defaults to `~/projects`)—avoid expensive scans and cache directory listings per invocation when possible.
-- Keep comments terse; only annotate non-obvious parsing/perf tricks.
-- All timestamps are UTC ISO-8601 via `date -u +%Y-%m-%dT%H:%M:%SZ`.
+### Coding Standards
+- Stay within existing POSIX toolset (ps, jq, lsof, xdotool, wmctrl) and gate optional utilities with detection helpers.
+- Avoid per-process subshells; reuse cached listings and incremental parsing to stay under the runtime budget, especially inside `process-tree.sh`.
+- Mapping scripts may consult `$PROJECTS_ROOT` (defaults to `~/projects`); cache directory scans per invocation to prevent slow walks.
+- Emit timestamps via `date -u +%Y-%m-%dT%H:%M:%SZ`; keep comments short and focused on non-obvious parsing or perf tricks.
 
-## Testing & Diagnostics
-- Primary test entrypoint: `./tests/test-detection.sh` (runs detectors + mappers sequentially, jq-validates output, and times critical scripts).
-- For focused perf work on process-tree, use `/usr/bin/time -f '%E real' ./src/detectors/process-tree.sh` and keep under 2.0s real.
-- Use `jq` for schema spot-checks: `./src/detectors/active-window.sh | jq '.pid, .process_name'` etc.
+### Testing & Diagnostics
+- `./tests/test-detection.sh` is the authoritative suite; it also jq-validates every detector output—fix formatting before re-running if it fails.
+- For isolated performance work run `/usr/bin/time -f '%E real' ./src/detectors/process-tree.sh` and keep real time <2.0s.
+- Spot-check JSON contracts with commands like `./src/detectors/active-window.sh | jq '.pid, .process_name'` or `./src/detectors/inference.sh | jq '.'`.
 
-## Documentation & Signposts
-- README.md carries product story + quick start; keep “Project Status” current with links to major docs.
-- `AGENTS.md` records roles/responsibilities; `CONTRIBUTORS.md` thanks humans/agents by milestone.
-- Scripts reference: `scripts/README.md`; generator + status scripts live in `scripts/` and must stay executable.
+### Documentation & Tooling
+- Keep `README.md` project status and workflows up to date; `scripts/README.md` documents helper scripts that must remain executable.
+- Use Prettier for formatting, markdownlint for Markdown checks, and CSpell (en-GB) for spell-checking outside of code blocks.
+- `AGENTS.md` tracks responsibilities; update it only when roles change, but always follow its engagement model during sessions.
 
-## Handoff Essentials
-- Always append to memory-bank docs and logbooks; never delete historical lines.
-- Record blockers/decisions in `memory-bank/agent-logbook.md` and update `memory-bank/progress.md` snapshots when phases shift.
-- Leave TODOs or open questions in the newest session report so the next agent can resume without re-reading the entire history.
+### Handoff Essentials
+- Never rewrite history in memory-bank docs—only append new sections with timestamps and context.
+- Capture blockers/decisions in `memory-bank/agent-logbook.md` and reflect phase transitions in `memory-bank/progress.md`.
+- Leave explicit TODOs or open questions in the latest session log so the next agent can resume without re-parsing the full archive.
 
-> If anything above becomes inaccurate (new detectors, new tests, changed budgets), update this file alongside the relevant code/doc.
+> If any workflow or tooling expectation changes (new detector, mapper, or test), update this document alongside the related code.

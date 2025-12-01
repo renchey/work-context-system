@@ -19,6 +19,9 @@ url_inference=$(echo "$window_title" | ./src/mappers/url-to-project.sh)
 path_inference=$(echo "$process_cwd" | ./src/mappers/filepath-to-project.sh)
 worktype=$(echo "$active_window" | ./src/mappers/worktype-classifier.sh)
 
+# Run AI classifier for additional signal
+ai_classification=$(echo "$active_window" | ./src/mappers/ai-classifier.sh 2>/dev/null || echo "{}")
+
 # Combine signals for final project determination
 project=""
 project_confidence=0
@@ -47,6 +50,18 @@ fi
 classified_worktype=$(echo "$worktype" | jq -r '.classified_worktype // "unknown"')
 worktype_confidence=$(echo "$worktype" | jq -r '.worktype_confidence // 0')
 
+# Extract AI predictions
+ai_worktype=$(echo "$ai_classification" | jq -r '.ai_predicted_worktype // ""')
+ai_confidence=$(echo "$ai_classification" | jq -r '.ai_confidence // 0')
+
+# Use AI as fallback if heuristic confidence is low
+if (( $(echo "$worktype_confidence < 0.5" | bc -l) )) && [[ -n "$ai_worktype" ]] && [[ "$ai_worktype" != "unknown" ]]; then
+    if (( $(echo "$ai_confidence > $worktype_confidence" | bc -l) )); then
+        classified_worktype="$ai_worktype"
+        worktype_confidence="$ai_confidence"
+    fi
+fi
+
 jq -n \
     --arg project "$project" \
     --arg worktype "$classified_worktype" \
@@ -56,6 +71,8 @@ jq -n \
     --arg pid "$pid" \
     --arg process_name "$process_name" \
     --arg window_title "$window_title" \
+    --arg ai_worktype "$ai_worktype" \
+    --arg ai_conf "$ai_confidence" \
     '{
         project: (if $project == "" then null else $project end),
         work_type: $worktype,
@@ -66,6 +83,10 @@ jq -n \
             pid: ($pid | tonumber? // null),
             process_name: $process_name,
             window_title: $window_title
+        },
+        ai_fallback: {
+            predicted_worktype: (if $ai_worktype == "" then null else $ai_worktype end),
+            confidence: ($ai_conf | tonumber)
         },
         timestamp: $timestamp
     }'
